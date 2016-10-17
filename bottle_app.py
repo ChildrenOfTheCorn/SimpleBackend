@@ -87,7 +87,7 @@ def get_wallets():
 
 
 @post(API + methods.ADD_WALLET)
-def get_wallets():
+def add_wallet():
     token = request.get_cookie(response_fields.TOKEN)
     ean = request.get_cookie(response_fields.EAN)
     if token:
