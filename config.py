@@ -1,7 +1,8 @@
 # -*- coding: utf-8
 # DB connection settings
-
-DBHOST = "shoplist.mysql.pythonanywhere-services.com"
+#
+# Параметры подключения к бд
+#
 DBHOST = "localhost"
 DBUSER = "root"
 DBPASS = "1"

@@ -1,5 +1,8 @@
 #!/usr/bin/python
 # -*- coding: utf-8
+#
+# Тут вся работа с бд
+#
 import json
 import MySQLdb
 import sys, traceback

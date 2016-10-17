@@ -1,7 +1,9 @@
 ﻿#!/usr/bin/python
 # -*- coding: utf-8
+#
+# Логика работы с авторизацией через Oauth2
+#
 import json
-import MySQLdb
 import uuid
 from datetime import timedelta
 from datetime import datetime

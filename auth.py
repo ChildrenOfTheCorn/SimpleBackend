@@ -1,5 +1,8 @@
 #!/usr/bin/python
 # -*- coding: utf-8
+#
+# Логика работы с авторизацией через куки
+#
 import json
 import uuid
 from datetime import timedelta

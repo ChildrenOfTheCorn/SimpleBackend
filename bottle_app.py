@@ -1,9 +1,15 @@
-﻿import datetime
+﻿#!/usr/bin/python
+# -*- coding: utf-8
+#
+# Тут расположены обработчики запросов
+#
+import datetime
 import os
 from bottle import default_app, route, run, template, static_file, error, post, response, request
 import json
 from dbutils import DbService
 from auth import Auth
+import methods
 
 API = '/api/v2/'
 BAD_ACCESS_TOKEN_MESSAGE = '"bad access token"'
@@ -37,7 +43,7 @@ def index():
     except Exception as e:
         return "error: " + str(e)
 
-@post('/authorization')
+@post(API + methods.AUTHORIZATION)
 def authorization():
     message = "Automated-testing.info"
     now_time = datetime.datetime.now()
