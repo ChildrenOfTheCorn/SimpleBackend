@@ -48,11 +48,11 @@ class Auth:
         return res
 
     #return (is_success, data)
-    def auth(self, ean, password):
+    def auth(self, login, password):
         is_success = True
         conn = self.db.get_connection()
         cursor = conn.cursor()
-        user_id, user_name = self._get_user_id(cursor, ean, password)
+        user_id, user_name = self._get_user_id(cursor, login, password)
         if user_id is None:
             cursor.close()
             return json.dumps({response_fields.ERROR:
@@ -132,13 +132,13 @@ class Auth:
         conn = self.db.get_connection()
         cursor = conn.cursor()
         sql = ("SELECT id, timestamp FROM users "
-               "WHERE token = '" + token + "';")
+               "WHERE token = %s;")
 
-        data = (token)
+        data = [token]
         profile_id = None
         try:
             # Execute the SQL command
-            cursor.execute(sql)
+            cursor.execute(sql, data)
             # Fetch all the rows in a list of lists.
             rows = cursor.fetchall()
             for row in rows:

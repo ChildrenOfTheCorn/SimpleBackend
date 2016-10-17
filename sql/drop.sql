@@ -8,9 +8,6 @@ ALTER TABLE entry
 ALTER TABLE wallets
     DROP FOREIGN KEY wallet_users;
 
-ALTER TABLE users
-    DROP FOREIGN KEY user_entries;
-
 ALTER TABLE services
     DROP FOREIGN KEY service_category;
 

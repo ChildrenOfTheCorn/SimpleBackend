@@ -2,3 +2,4 @@
 # server methods
 
 AUTHORIZATION = "authorization"
+GET_WALLETS = "getWallets"

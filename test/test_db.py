@@ -13,11 +13,14 @@ path = os.path.abspath(__file__)
 ROOT = os.path.dirname(path)
 
 db = DbService()
+
+############ test auth ######################
 auth = Auth(db)
 token = auth.register(TEST_EAN, "test name", TEST_PASSWORD)
 
 print "token = " + token
 res = auth.auth(TEST_EAN, TEST_PASSWORD)
+user_id = res[0]
 if not res[0]:
     print 'auth not success', res[1]
     exit(1)
@@ -32,6 +35,20 @@ if not res:
 
 print "check_token success", res
 
+############## test wallets ################
+res = db.add_wallet(user_id, "usd wallet", "USD")
+if not res[0]:
+    print res[1]
+
+res = db.get_wallets(user_id)
+print res
+
+
+res = db.add_entry(1, user_id, "entry", 1000)
+print res[1]
+
+res = db.get_entries(1)
+print res[1]
 
 """"
 res = json.loads(db.add_request(1, 1))
@@ -52,5 +69,3 @@ if res.get('data') != True:
     exit(0)
 print res
 """
-
-db.close()

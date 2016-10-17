@@ -14,7 +14,7 @@ CREATE TABLE users (
 -- Table: wallet_list
 CREATE TABLE wallets (
     id int NOT NULL AUTO_INCREMENT,
-    name varchar(255) NOT NULL,
+    name varchar(255) NOT NULL UNIQUE,
     currency varchar(10) NOT NULL,
     user_id int NOT NULL,
     CONSTRAINT wallets_pk PRIMARY KEY (id)
@@ -58,6 +58,10 @@ ALTER TABLE entry ADD CONSTRAINT entry_user FOREIGN KEY entry_user (user_id)
 -- Reference: wallet_users (table: wallets)
 ALTER TABLE wallets ADD CONSTRAINT wallet_users FOREIGN KEY wallet_users (user_id)
     REFERENCES users (id);
+
+ALTER TABLE `wallets` ADD UNIQUE `wallets_idx`(`user_id`, `currency`);
+
+
 
 -- Reference: shop_list_users (table: shop_list)
 ALTER TABLE services ADD CONSTRAINT service_category FOREIGN KEY service_category (category_id)
