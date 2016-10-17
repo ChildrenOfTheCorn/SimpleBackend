@@ -23,7 +23,6 @@ class Auth:
                "(ean, name, password, token, timestamp) "
                "VALUES (%s, %s, %s, %s, %s)")
 
-        res = None
         try:
             # Execute the SQL command
             # generate refresh token, access token
@@ -37,17 +36,17 @@ class Auth:
             cursor.execute(sql, data)
             id = cursor.lastrowid
             conn.commit()
-            res = token
+            return True, token
         except Exception as e:
             conn.rollback()
             print "Error: unable to fecth data, " + str(e)
-            res = json.dumps({response_fields.ERROR:
-                                  {response_fields.ERROR_CODE: error_codes.ERROR_CODE_SQL_ECXEPTION,
-                                   response_fields.ERROR_MESSAGE: str(e)}})
-        cursor.close()
-        return res
+            return False, json.dumps({response_fields.ERROR:
+                                          {response_fields.ERROR_CODE: error_codes.ERROR_CODE_SQL_ECXEPTION,
+                                           response_fields.ERROR_MESSAGE: str(e)}})
+        finally:
+            cursor.close()
 
-    #return (is_success, data)
+    # return (is_success, data)
     def auth(self, login, password):
         is_success = True
         conn = self.db.get_connection()
