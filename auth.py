@@ -16,7 +16,7 @@ class Auth:
         self.db = db_service
         self.expire_period = 3600
 
-    def register(self, ean, name, password):
+    def register(self, login, name, password):
         conn = self.db.get_connection()
         cursor = conn.cursor()
         sql = ("INSERT INTO users "
@@ -33,7 +33,7 @@ class Auth:
 
             ts = timestamp.strftime('%Y-%m-%d %H:%M:%S')
 
-            data = (ean, name, password, token, ts)
+            data = (login, name, password, token, ts)
             cursor.execute(sql, data)
             id = cursor.lastrowid
             conn.commit()

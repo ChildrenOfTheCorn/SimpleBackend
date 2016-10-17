@@ -14,7 +14,7 @@ import request_fields
 import response_fields
 import error_codes
 
-API = '/api/v2/'
+API = '/api/upc1/'
 BAD_ACCESS_TOKEN_MESSAGE = '"bad access token"'
 
 BAD_ACCESS_TOKEN = '{"error": {"code": 8, "message": ' + BAD_ACCESS_TOKEN_MESSAGE + '}}'
@@ -45,6 +45,20 @@ def index():
         return template('index', cur_hour=cur_hour, msg=message)
     except Exception as e:
         return "error: " + str(e)
+
+
+@post(API + methods.REGISTRATION)
+def registration():
+    login = request.query[request_fields.LOGIN]
+    name = request.query[request_fields.NAME]
+    password = request.query[request_fields.PASSWORD]
+
+    is_success, token_data = auth.register(login=login, name=name, password=password)
+    if is_success:
+        response.set_header('Set-Cookie', response_fields.TOKEN + '=' + token_data)
+        response.add_header('Set-Cookie', response_fields.EAN + '=' + login)
+        return json.dumps({response_fields.SUCCESS: "OK"})
+    return make_error_response(token_data)
 
 
 @post(API + methods.AUTHORIZATION)
