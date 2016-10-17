@@ -52,7 +52,6 @@ class DbService:
 
     # services list for client
     def add_wallet(self, user_id, name, currency):
-        is_success = True
         self.get_connection()
         sql = ("INSERT INTO wallets "
                "(user_id, name, currency) "
@@ -61,24 +60,23 @@ class DbService:
         try:
             # Execute the SQL command
             self.cursor.execute(sql, data)
-            id = self.cursor.lastrowid
-            res = self._make_success({
-                response_fields.ID: id,
+            result_id = self.cursor.lastrowid
+            self.db.commit()
+            return self._make_success({
+                response_fields.ID: result_id,
                 response_fields.NAME: name,
                 response_fields.CURRENCY: currency})
-            self.db.commit()
+
         except Exception as e:
             self.db.rollback()
-            is_success = False
             print ("Error: unable to fecth data, " + str(e))
-            res = self._make_error(str(e))
+            return self._make_error(str(e))
         finally:
             self.close()
-        return (is_success, res)
 
     def add_entry(self, wallet_id, user_id, name, price):
         self.get_connection()
-        is_success = True
+
         sql = ("INSERT INTO entry "
                "(wallet_id, user_id, name, price) "
                "VALUES (%s, %s, %s, %s)")
@@ -86,19 +84,17 @@ class DbService:
         try:
             # Execute the SQL command
             self.cursor.execute(sql, data)
-            id = self.cursor.lastrowid
-            res = self._make_success({response_fields.ID: id,
-                                      response_fields.NAME: name,
-                                      response_fields.PRICE: price})
+            result_id = self.cursor.lastrowid
             self.db.commit()
+            return self._make_success({response_fields.ID: result_id,
+                                       response_fields.NAME: name,
+                                       response_fields.PRICE: price})
         except Exception as e:
             self.db.rollback()
-            is_success = False
             print ("Error: unable to fecth data, " + str(e))
-            res = self._make_error(str(e))
+            return self._make_error(str(e))
         finally:
             self.close()
-        return (is_success, res)
 
     def get_entries(self, wallet_id):
         self.get_connection()
@@ -117,10 +113,10 @@ class DbService:
                 result.append({response_fields.ID: row[0],
                                response_fields.NAME: row[1],
                                response_fields.PRICE: row[2]})
-            return True, self._make_success(result)
+            return self._make_success(result)
         except Exception as e:
             print ("Error: unable to fetch data, " + str(e))
-            return False, self._make_error(str(e))
+            return self._make_error(str(e))
         finally:
             self.close()
 

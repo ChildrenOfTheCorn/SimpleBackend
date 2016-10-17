@@ -69,8 +69,34 @@ def get_wallets():
         if user_id:
             return db.get_wallets(user_id=user_id)
 
-    return make_error_response({response_fields.ERROR_CODE:error_codes.ERROR_CODE_AUTH,
-                                response_fields.ERROR_MESSAGE:error_codes.ERROR_MESSAGE_AUTH})
+    return make_auth_error_response()
+
+
+@post(API + methods.ADD_WALLET)
+def get_wallets():
+    token = request.get_cookie(response_fields.TOKEN)
+    ean = request.get_cookie(response_fields.EAN)
+    if token:
+        user_id = auth.get_profile_by_token(token)
+        if user_id:
+            name = request.query[request_fields.NAME]
+            currency = request.query[request_fields.CURRENCY]
+            return db.add_wallet(user_id=user_id, name=name, currency=currency)
+
+    return make_auth_error_response()
+
+
+@route(API + methods.GET_ENTRIES)
+def get_entries():
+    token = request.get_cookie(response_fields.TOKEN)
+    ean = request.get_cookie(response_fields.EAN)
+    if token:
+        user_id = auth.get_profile_by_token(token)
+        if user_id:
+            wallet_id = request.query[request_fields.WALLET_ID]
+            return db.get_entries(wallet_id=wallet_id)
+
+    return make_auth_error_response()
 
 
 @error(404)
@@ -82,6 +108,11 @@ def mistake(code):
 def make_error_response(errorData):
     return json.dumps({response_fields.SUCCESS: "ERROR",
                        response_fields.ERROR: errorData})
+
+
+def make_auth_error_response():
+    return make_error_response({response_fields.ERROR_CODE: error_codes.ERROR_CODE_AUTH,
+                                response_fields.ERROR_MESSAGE: error_codes.ERROR_MESSAGE_AUTH})
 
 
 if __name__ == "__main__":

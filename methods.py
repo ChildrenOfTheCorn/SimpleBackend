@@ -3,3 +3,5 @@
 
 AUTHORIZATION = "authorization"
 GET_WALLETS = "getWallets"
+ADD_WALLET = "addWallet"
+GET_ENTRIES = "getEntries"
