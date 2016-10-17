@@ -54,9 +54,9 @@ class Auth:
         user_id, user_name = self._get_user_id(cursor, login, password)
         if user_id is None:
             cursor.close()
-            return json.dumps({response_fields.ERROR:
-                                   {response_fields.ERROR_CODE: error_codes.ERROR_CODE_AUTH,
-                                    response_fields.ERROR_MESSAGE: error_codes.ERROR_MESSAGE_AUTH}})
+            return False, json.dumps({response_fields.ERROR:
+                                          {response_fields.ERROR_CODE: error_codes.ERROR_CODE_AUTH,
+                                           response_fields.ERROR_MESSAGE: error_codes.ERROR_MESSAGE_AUTH}})
 
         sql = ("UPDATE users "
                " SET token = %s, timestamp = %s "
@@ -116,16 +116,14 @@ class Auth:
         sql = ("SELECT id, name FROM users "
                "WHERE ean = %s AND password = %s")
         data = (login, password)
-        result = None
 
         # Execute the SQL command
         cursor.execute(sql, data)
         # Fetch all the rows in a list of lists.
         rows = cursor.fetchall()
         for row in rows:
-            result = (row[0], row[1])
-            break
-        return result
+            return row[0], row[1]
+        return None, None
 
     def get_profile_by_token(self, token):
         conn = self.db.get_connection()
