@@ -115,6 +115,62 @@ def get_entries():
     return make_auth_error_response()
 
 
+@post(API + methods.ADD_CATEGORY)
+def add_category():
+    token = request.get_cookie(response_fields.TOKEN)
+    ean = request.get_cookie(response_fields.EAN)
+    if token:
+        user_id = auth.get_profile_by_token(token)
+        if user_id:
+            name = request.query[request_fields.NAME]
+            auth.prolongate_session(user_id)
+            return db.add_category(user_id, name)
+
+    return make_auth_error_response()
+
+
+@route(API + methods.GET_CATEGORIES)
+def get_categories():
+    token = request.get_cookie(response_fields.TOKEN)
+    ean = request.get_cookie(response_fields.EAN)
+    if token:
+        user_id = auth.get_profile_by_token(token)
+        if user_id:
+            auth.prolongate_session(user_id)
+            return db.get_categories()
+
+    return make_auth_error_response()
+
+
+@post(API + methods.ADD_SERVICE)
+def add_service():
+    token = request.get_cookie(response_fields.TOKEN)
+    ean = request.get_cookie(response_fields.EAN)
+    if token:
+        user_id = auth.get_profile_by_token(token)
+        if user_id:
+            name = request.query[request_fields.NAME]
+            category_id = request.query[request_fields.CATEGORY_ID]
+            auth.prolongate_session(user_id)
+            return db.add_service(category_id, name)
+
+    return make_auth_error_response()
+
+
+@route(API + methods.GET_SERVICES)
+def get_services():
+    token = request.get_cookie(response_fields.TOKEN)
+    ean = request.get_cookie(response_fields.EAN)
+    if token:
+        user_id = auth.get_profile_by_token(token)
+        if user_id:
+            category_id = request.query[request_fields.CATEGORY_ID]
+            auth.prolongate_session(user_id)
+            return db.get_services(category_id)
+
+    return make_auth_error_response()
+
+
 @error(404)
 @error(403)
 def mistake(code):

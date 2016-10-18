@@ -136,6 +136,92 @@ class DbService:
         finally:
             self.close()
 
+    # category
+    def add_category(self, name):
+        self.get_connection()
+        sql = ("INSERT INTO categories "
+               "(name) "
+               "VALUES (%s)")
+        data = [name]
+        try:
+            # Execute the SQL command
+            self.cursor.execute(sql, data)
+            result_id = self.cursor.lastrowid
+            self.db.commit()
+            return self._make_success({response_fields.ID: result_id,
+                                       response_fields.NAME: name})
+        except Exception as e:
+            self.db.rollback()
+            print ("Error: unable to fecth data, " + str(e))
+            return self._make_error(str(e))
+        finally:
+            self.close()
+
+    def get_categories(self):
+        self.get_connection()
+        sql = ("SELECT id, name FROM categories "
+               " ORDER BY name;")
+        result = []
+        try:
+            # Execute the SQL command
+            self.cursor.execute(sql)
+            # Fetch all the rows in a list of lists.
+            rows = self.cursor.fetchall()
+            for row in rows:
+                result.append({response_fields.ID: row[0],
+                               response_fields.NAME: row[1]})
+            return self._make_success(result)
+        except Exception as e:
+            print ("Error: unable to fetch data, " + str(e))
+            return self._make_error(str(e))
+        finally:
+            self.close()
+
+    # services
+    def add_service(self, category_id, name):
+        self.get_connection()
+        sql = ("INSERT INTO services "
+               "(category_id, name) "
+               "VALUES (%s, %s)")
+        data = (category_id, name)
+        try:
+            # Execute the SQL command
+            self.cursor.execute(sql, data)
+            result_id = self.cursor.lastrowid
+            self.db.commit()
+            return self._make_success({response_fields.ID: result_id,
+                                       response_fields.NAME: name,
+                                       response_fields.CATEGORY_ID: category_id})
+        except Exception as e:
+            self.db.rollback()
+            print ("Error: unable to fecth data, " + str(e))
+            return self._make_error(str(e))
+        finally:
+            self.close()
+
+    def get_services(self, category_id):
+        self.get_connection()
+        sql = ("SELECT id, name, category_id FROM services "
+               " WHERE category_id = %s"
+               " ORDER BY name;")
+        data = [category_id]
+        result = []
+        try:
+            # Execute the SQL command
+            self.cursor.execute(sql, data)
+            # Fetch all the rows in a list of lists.
+            rows = self.cursor.fetchall()
+            for row in rows:
+                result.append({response_fields.ID: row[0],
+                               response_fields.NAME: row[1],
+                               response_fields.CATEGORY_ID: row[2]})
+            return self._make_success(result)
+        except Exception as e:
+            print ("Error: unable to fetch data, " + str(e))
+            return self._make_error(str(e))
+        finally:
+            self.close()
+
     def _make_error(self, error_data):
         return json.dumps({response_fields.SUCCESS: "ERROR",
                            response_fields.ERROR: {
