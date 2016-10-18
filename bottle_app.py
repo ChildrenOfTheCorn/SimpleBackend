@@ -95,6 +95,7 @@ def add_wallet():
         if user_id:
             name = request.query[request_fields.NAME]
             currency = request.query[request_fields.CURRENCY]
+            auth.prolongate_session(user_id)
             return db.add_wallet(user_id=user_id, name=name, currency=currency)
 
     return make_auth_error_response()
@@ -108,6 +109,7 @@ def get_entries():
         user_id = auth.get_profile_by_token(token)
         if user_id:
             wallet_id = request.query[request_fields.WALLET_ID]
+            auth.prolongate_session(user_id)
             return db.get_entries(wallet_id=wallet_id)
 
     return make_auth_error_response()

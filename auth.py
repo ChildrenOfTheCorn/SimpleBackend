@@ -14,7 +14,7 @@ import response_fields
 class Auth:
     def __init__(self, db_service):
         self.db = db_service
-        self.expire_period = 3600
+        self.expire_period = 60
 
     def register(self, login, name, password):
         conn = self.db.get_connection()
@@ -39,7 +39,7 @@ class Auth:
             return True, token
         except Exception as e:
             conn.rollback()
-            print "Error: unable to fecth data, " + str(e)
+            print "Error: unable to fetch data, " + str(e)
             return False, json.dumps({response_fields.ERROR:
                                           {response_fields.ERROR_CODE: error_codes.ERROR_CODE_SQL_ECXEPTION,
                                            response_fields.ERROR_MESSAGE: str(e)}})
@@ -81,7 +81,6 @@ class Auth:
         return (is_success, res)
 
     def check_token(self, ean, token):
-        is_success = True
         conn = self.db.get_connection()
         cursor = conn.cursor()
         user_id = self._get_user_id_by_token(cursor, token)
@@ -102,12 +101,35 @@ class Auth:
             return True
         except Exception as e:
             conn.rollback()
-            is_success = False
             print "Error: unable to fecth data, " + str(e)
             res = json.dumps({response_fields.ERROR:
                                   {response_fields.ERROR_CODE: error_codes.ERROR_CODE_SQL_ECXEPTION,
                                    response_fields.ERROR_MESSAGE: str(e)}})
-            return None
+            return False
+        finally:
+            cursor.close()
+
+    def prolongate_session(self, user_id):
+        conn = self.db.get_connection()
+        cursor = conn.cursor()
+        sql = ("UPDATE users "
+               " SET timestamp = %s "
+               " WHERE id = %s")
+        try:
+            # Execute the SQL command
+            timestamp = datetime.now() + timedelta(seconds=self.expire_period)
+            data = (timestamp, user_id)
+            cursor.execute(sql, data)
+            id = cursor.lastrowid
+            conn.commit()
+            return True
+        except Exception as e:
+            conn.rollback()
+            print "Error: unable to fecth data, " + str(e)
+            res = json.dumps({response_fields.ERROR:
+                                  {response_fields.ERROR_CODE: error_codes.ERROR_CODE_SQL_ECXEPTION,
+                                   response_fields.ERROR_MESSAGE: str(e)}})
+            return False
         finally:
             cursor.close()
 
@@ -151,21 +173,24 @@ class Auth:
         return profile_id
 
     def _get_user_id_by_token(self, cursor, token):
-        sql = ("SELECT id FROM users "
+        sql = ("SELECT id, timestamp FROM users "
                "WHERE token = %s;")
         data = [token]
-        result = None
+        profile_id = None
         try:
             # Execute the SQL command
             cursor.execute(sql, data)
             # Fetch all the rows in a list of lists.
             rows = cursor.fetchall()
             for row in rows:
-                result = row[0]
+                timestamp = row[1]
+                now = datetime.now()
+                if timestamp > now:
+                    profile_id = row[0]
                 break
         except Exception as e:
             print "Error: unable to fecth data, " + str(e)
-        return result
+        return profile_id
 
     def _generateToken(self):
         return uuid.uuid4().hex
