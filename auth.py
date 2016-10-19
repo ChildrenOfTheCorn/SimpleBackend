@@ -14,7 +14,7 @@ import response_fields
 class Auth:
     def __init__(self, db_service):
         self.db = db_service
-        self.expire_period = 60
+        self.expire_period = 60 * 5
 
     def register(self, login, name, password):
         conn = self.db.get_connection()

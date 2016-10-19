@@ -124,7 +124,7 @@ def add_category():
         if user_id:
             name = request.query[request_fields.NAME]
             auth.prolongate_session(user_id)
-            return db.add_category(user_id, name)
+            return db.add_category(name)
 
     return make_auth_error_response()
 
