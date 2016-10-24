@@ -6,12 +6,16 @@
 import json
 import MySQLdb
 import sys, traceback
+from datetime import timedelta
+from datetime import datetime
 from config import *
 import response_fields
 import error_codes
 
-
 # Класс работы с бд
+CONFIRM_TIMEOUT_SECONDS = 300
+
+
 class DbService:
     def __init__(self):
         # подключаемся к базе данных (не забываем указать кодировку, а то в базу запишутся иероглифы)
@@ -74,13 +78,66 @@ class DbService:
         finally:
             self.close()
 
-    def add_entry(self, wallet_id, user_id, name, price):
+    # -------------- otcc ------------------
+
+    def add_confirmation(self, user_id, wallet_id, service_id, name, price):
+        self.get_connection()
+        sql_delete = ("DELETE FROM confirmations "
+                      "WHERE user_id = %s ")
+        sql_insert = ("INSERT INTO confirmations "
+                      "(user_id, wallet_id, service_id, name, price, timestamp) "
+                      "VALUES (%s, %s, %s, %s, %s, %s)")
+        timestamp = datetime.now() + timedelta(seconds=CONFIRM_TIMEOUT_SECONDS)
+        data_delete = [user_id]
+        data = (user_id, wallet_id, service_id, name, price, timestamp)
+        try:
+            # Execute the SQL command
+            self.cursor.execute(sql_delete, data_delete)
+            self.cursor.execute(sql_insert, data)
+            result_id = self.cursor.lastrowid
+            self.db.commit()
+            return self._make_success_otcc({response_fields.CONFIRM_ID: result_id,
+                                            response_fields.PRICE: price})
+        except Exception as e:
+            self.db.rollback()
+            print ("Error: unable to fetch data, " + str(e))
+            return self._make_error(str(e))
+        finally:
+            self.close()
+
+    #TODO
+    def check_confirm(self, confirm_id):
+        self.get_connection()
+        sql = ("SELECT e.id, e.name, e.price FROM entry AS e "
+               " WHERE e.wallet_id = %s"
+               " ORDER BY e.name;")
+
+        data = [wallet_id]
+        result = []
+        try:
+            # Execute the SQL command
+            self.cursor.execute(sql, data)
+            # Fetch all the rows in a list of lists.
+            rows = self.cursor.fetchall()
+            for row in rows:
+                result.append({response_fields.ID: row[0],
+                               response_fields.NAME: row[1],
+                               response_fields.PRICE: row[2]})
+            return self._make_success(result)
+        except Exception as e:
+            print ("Error: unable to fetch data, " + str(e))
+            return self._make_error(str(e))
+        finally:
+            self.close()
+
+    # ----------------- entries ----------------
+    def add_entry(self, user_id, wallet_id, service_id, name, price):
         self.get_connection()
 
         sql = ("INSERT INTO entry "
-               "(wallet_id, user_id, name, price) "
-               "VALUES (%s, %s, %s, %s)")
-        data = (wallet_id, user_id, name, price)
+               "(wallet_id, service_id, user_id, name, price) "
+               "VALUES (%s, %s, %s, %s, %s)")
+        data = (wallet_id, service_id, user_id, name, price)
         try:
             # Execute the SQL command
             self.cursor.execute(sql, data)
@@ -91,7 +148,7 @@ class DbService:
                                        response_fields.PRICE: price})
         except Exception as e:
             self.db.rollback()
-            print ("Error: unable to fecth data, " + str(e))
+            print ("Error: unable to fetch data, " + str(e))
             return self._make_error(str(e))
         finally:
             self.close()
@@ -230,6 +287,10 @@ class DbService:
 
     def _make_success(self, data):
         return json.dumps({response_fields.SUCCESS: "OK",
+                           response_fields.DATA: data})
+
+    def _make_success_otcc(self, data):
+        return json.dumps({response_fields.SUCCESS: "OK_OTCC",
                            response_fields.DATA: data})
 
     def _make_success_empty(self):

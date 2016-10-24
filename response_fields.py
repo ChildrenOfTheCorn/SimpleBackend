@@ -13,6 +13,7 @@ EAN = "login"
 TOKEN = "token"
 
 ID = "id"
+CONFIRM_ID = "confirmId"
 NAME = "name"
 CURRENCY = "currency"
 PRICE = "price"
