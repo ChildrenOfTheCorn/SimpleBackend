@@ -50,7 +50,7 @@ CREATE TABLE services (
 -- Table: confirmations
 CREATE TABLE confirmations (
     id int NOT NULL AUTO_INCREMENT,
-    confirm_id int NOT NULL,
+    confirm_code int NOT NULL,
     service_id int NOT NULL,
     wallet_id int NOT NULL,
     user_id int NOT NULL UNIQUE,
