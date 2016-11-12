@@ -105,7 +105,7 @@ class DbService:
         finally:
             self.close()
 
-    #TODO
+    # TODO
     def check_confirm(self, confirm_id):
         self.get_connection()
         sql = ("SELECT e.id, e.name, e.price FROM entry AS e "
@@ -153,13 +153,13 @@ class DbService:
         finally:
             self.close()
 
-    def get_entries(self, wallet_id):
+    def get_entries(self, wallet_id, offset, limit):
         self.get_connection()
         sql = ("SELECT e.id, e.name, e.price FROM entry AS e "
                " WHERE e.wallet_id = %s"
-               " ORDER BY e.name;")
+               " ORDER BY e.name LIMIT %s OFFSET %s;")
 
-        data = [wallet_id]
+        data = [wallet_id, limit, offset]
         result = []
         try:
             # Execute the SQL command

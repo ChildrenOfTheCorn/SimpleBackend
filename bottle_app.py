@@ -109,8 +109,10 @@ def get_entries():
         user_id = auth.get_profile_by_token(token)
         if user_id:
             wallet_id = request.query[request_fields.WALLET_ID]
+            limit = request.query[request_fields.LIMIT]
+            offset = request.query[request_fields.OFFSET]
             auth.prolongate_session(user_id)
-            return db.get_entries(wallet_id=wallet_id)
+            return db.get_entries(wallet_id=wallet_id, limit=limit, offset=offset)
 
     return make_auth_error_response()
 
