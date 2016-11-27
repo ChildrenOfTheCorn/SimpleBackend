@@ -73,6 +73,16 @@ def authorization():
         return json.dumps({response_fields.SUCCESS: "OK"})
     return make_error_response(token_data)
 
+@route(API + methods.GET_USER_INFO)
+def get_user_info():
+    token = request.get_cookie(response_fields.TOKEN)
+    ean = request.get_cookie(response_fields.EAN)
+    if token:
+        user_id = auth.get_profile_by_token(token)
+        if user_id:
+            return db.get_user_info(user_id=user_id)
+
+    return make_auth_error_response()
 
 @route(API + methods.GET_WALLETS)
 def get_wallets():

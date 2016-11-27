@@ -29,6 +29,25 @@ class DbService:
         return self.db
 
     # API
+    def get_user_info(self, user_id):
+        sql = "SELECT name FROM users WHERE user_id = %s;"
+        data = (user_id)
+        result = []
+        try:
+            # Execute the SQL command
+            self.cursor.execute(sql, data)
+            # Fetch all the rows in a list of lists.
+            rows = self.cursor.fetchall()
+            for row in rows:
+                result.append({response_fields.ID: user_id,
+                               response_fields.NAME: row[1]})
+            return self._make_success(result)
+        except Exception as e:
+            print ("Error: unable to fecth data, " + str(e))
+            return self._make_error(str(e))
+        finally:
+            self.close()
+
     def get_wallets(self, user_id):
         self.get_connection()
         sql = "SELECT id, name, currency FROM wallets WHERE user_id = %s;"
