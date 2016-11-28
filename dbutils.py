@@ -40,7 +40,7 @@ class DbService:
             rows = self.cursor.fetchall()
             for row in rows:
                 result.append({response_fields.ID: user_id,
-                               response_fields.NAME: row[1]})
+                               response_fields.NAME: row[0]})
             return self._make_success(result)
         except Exception as e:
             print ("Error: unable to fecth data, " + str(e))
