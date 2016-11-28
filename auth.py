@@ -40,9 +40,8 @@ class Auth:
         except Exception as e:
             conn.rollback()
             print "Error: unable to fetch data, " + str(e)
-            return False, json.dumps({response_fields.ERROR:
-                                          {response_fields.ERROR_CODE: error_codes.ERROR_CODE_SQL_ECXEPTION,
-                                           response_fields.ERROR_MESSAGE: str(e)}})
+            return False, json.dumps({response_fields.ERROR_CODE: error_codes.ERROR_CODE_SQL_ECXEPTION,
+                                           response_fields.ERROR_MESSAGE: str(e)})
         finally:
             cursor.close()
 
@@ -54,9 +53,8 @@ class Auth:
         user_id, user_name = self._get_user_id(cursor, login, password)
         if user_id is None:
             cursor.close()
-            return False, json.dumps({response_fields.ERROR:
-                                          {response_fields.ERROR_CODE: error_codes.ERROR_CODE_AUTH,
-                                           response_fields.ERROR_MESSAGE: error_codes.ERROR_MESSAGE_AUTH}})
+            return False, json.dumps({response_fields.ERROR_CODE: error_codes.ERROR_CODE_AUTH,
+                                           response_fields.ERROR_MESSAGE: error_codes.ERROR_MESSAGE_AUTH})
 
         sql = ("UPDATE users "
                " SET token = %s, timestamp = %s "
@@ -74,9 +72,8 @@ class Auth:
             conn.rollback()
             is_success = False
             print "Error: unable to fecth data, " + str(e)
-            res = json.dumps({response_fields.ERROR:
-                                  {response_fields.ERROR_CODE: error_codes.ERROR_CODE_SQL_ECXEPTION,
-                                   response_fields.ERROR_MESSAGE: str(e)}})
+            res = json.dumps({response_fields.ERROR_CODE: error_codes.ERROR_CODE_SQL_ECXEPTION,
+                                   response_fields.ERROR_MESSAGE: str(e)})
         cursor.close()
         return (is_success, res)
 
