@@ -30,7 +30,7 @@ class DbService:
 
     # API
     def get_user_info(self, user_id):
-        sql = "SELECT name FROM users WHERE user_id = %s;"
+        sql = "SELECT name FROM users WHERE id = %s;"
         data = [user_id]
         result = []
         try:
