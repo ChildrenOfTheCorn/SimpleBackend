@@ -31,7 +31,7 @@ class DbService:
     # API
     def get_user_info(self, user_id):
         sql = "SELECT name FROM users WHERE user_id = %s;"
-        data = (user_id)
+        data = [user_id]
         result = []
         try:
             # Execute the SQL command
